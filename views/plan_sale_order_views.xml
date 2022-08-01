@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="plan_sale_order_view_form" model="ir.ui.view">
+        <field name="name">Plan Sale Order Form</field>
+        <field name="model">plan.sale.order</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="btn_new" type="object" string="Cancel" data-hotkey="w"
+                            class="oe_highlight"
+                            attrs="{'invisible': [('state', 'not in', ('send','deny','approve'))]}"/>
+                    <button name="btn_send" type="object" string="Send" data-hotkey="w"
+                            class="oe_highlight"
+                            attrs="{'invisible': [('state', 'not in', 'new')]}"/>
+                    <button name="btn_confirm" type="object" string="Confirm plan sale" data-hotkey="w"
+                            class="btn-success"
+                            attrs="{'invisible': [('state', 'not in', ('send'))]}"/>
+                    <field name="state" widget="statusbar"/>
+
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" attrs="{'readonly': [('state', 'in', ('send','deny','approve'))]}"/>
+                            <field name="quotations"
+                                   attrs="{'readonly': [('state', 'in', ('send','deny','approve'))]}"/>
+                            <field name="info_plan_sale_order"
+                                   attrs="{'readonly': [('state', 'in', ('send','deny','approve'))]}"/>
+                            <field name="create_uid"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Approval Person List" name="name_list">
+                            <field name="order_line" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}">
+                                <tree editable="bottom">
+                                    <field name="approval_person"/>
+                                    <field name="state_re" invisible="1"/>
+                                    <field name="status_approval"
+                                    />
+                                    <button name="btn_approve"
+                                            class="fa fa-check btn-success"
+                                            type="object"
+                                            attrs="{'invisible': ['|',('status_approval', 'not in', ('approved','not_available')),
+                                                                    ('state_re', 'not in' ,'send')]}"
+                                            groups="exam_3.plan_sale_order_group_manager"/>
+                                    <button name="btn_denied"
+                                            class="fa fa-times btn-danger"
+                                            type="object"
+                                            attrs="{'invisible': ['|',('status_approval', 'not in', ('denied','not_available')),
+                                                                    ('state_re', 'not in' ,'send')]}"
+                                            groups="exam_3.plan_sale_order_group_manager"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id='plan_sale_order_action' model='ir.actions.act_window'>
+        <field name="name">Plan Sale Order</field>
+        <field name="res_model">plan.sale.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="target">current</field>
+        <!--        <field name="context">{'default_quotations': active_id}</field>-->
+    </record>
+
+    <menuitem name="Plan Sale Order" id="plan_sale_order_menu" action="plan_sale_order_action"/>
+</odoo>

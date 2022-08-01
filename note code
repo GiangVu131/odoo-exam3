@@ -1,0 +1,86 @@
+<form>
+                                    <group>
+                                        <group>
+                                            <field name="approval_person"
+                                                   attrs="{'readonly': [('state', 'in', ('send','deny','approve'))]}"
+                                                   groups="exam_3.plan_sale_order_group_user"/>
+                                            <field name="status_approval"
+                                                   attrs="{'readonly': [('state', 'in', ('send','deny','approve'))]}"
+                                                   groups="exam_3.plan_sale_order_group_manager"
+                                            />
+                                        </group>
+                                        <group>
+                                            <footer>
+                                                <group>
+                                                    <button name="btn_approve" type="object" string="Approve"
+                                                            data-hotkey="w"
+                                                            class="oe_highlight"
+                                                    />
+                                                </group>
+                                                <group>
+                                                    <button name="btn_denied" type="object" string="Denied"
+                                                            data-hotkey="w"
+                                                            class="oe_highlight"
+
+                                                    />
+                                                </group>
+                                            </footer>
+                                        </group>
+                                    </group>
+                                </form>
+quotations = fields.Many2one('sale.order', string='Quotations', )
+    info_plan_sale_order = fields.Text(required=True, string='info')
+    approval_person = fields.Many2one('res.partner', string='Approval Person')
+    status_approval = fields.Selection(
+        [('not_approved_yet', 'Not Approved Yet'), ('approved', 'Approved'), ('denied', 'Denied')],
+        string='Status', default='not_approved_yet')
+
+    state = fields.Selection([
+        ('new', 'New'),
+        ('send', 'Send'),
+        ('approve', 'Approve'),
+        ('deny', 'Deny'),
+    ], string='Status', readonly=True, copy=False, index=True, tracking=3, default='new')
+
+@api.model
+    def is_allowed_transition(self, old_state, new_state):
+        allowed = [
+            ('new', 'send'),
+            ('send', 'new'),
+            ('send', 'deny'),
+            ('deny', 'new'),
+            ('send', 'approve'),
+            ('approve', 'new'),
+        ]
+        return (old_state, new_state) in allowed
+
+    def change_state(self, new_state):
+        for r in self:
+            if r.is_allowed_transition(r.state, new_state):
+                r.state = new_state
+            else:
+                continue
+
+    def btn_send(self):
+        if not self.approval_person:
+            raise models.ValidationError('No one approve')
+        else:
+            self.change_state('send')
+            self.sudo().message_post(body=_(("<b> <h2> Send notification to approval person </h2> </b>")),
+                                     partner_ids=[self.approval_person.id],
+                                     message_type='notification')
+
+    def btn_new(self):
+        self.change_state('new')
+        if self.state == 'new':
+            self.status_approval = 'not_approved_yet'
+
+    def btn_denied(self):
+        self.change_state('deny')
+        if self.state == 'deny':
+            self.status_approval = 'denied'
+
+    def btn_approve(self):
+        self.change_state('approve')
+        if self.state == 'approve':
+            self.status_approval = 'approved'
