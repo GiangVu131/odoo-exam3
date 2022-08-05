@@ -1,37 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="module_plan_sale_order_category" model="ir.module.category">
-        <field name="name">Plan Sale Order</field>
-    </record>
-
-    <record id="module_plan_sale_order" model="ir.module.category">
-        <field name="name">Group Plan Sale Order</field>
-        <field name="parent_id" ref="module_plan_sale_order_category">
-        </field>
-    </record>
-
     <record id="plan_sale_order_group_user" model="res.groups">
-        <field name="name">Plan Sale Group User</field>
-        <field name="category_id" ref="module_plan_sale_order">
-        </field>
-        <field name="implied_ids" eval="[(4, ref('base.group_user'))]">
-        </field>
+        <field name="name">Plan Group User</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
-
     <record id="plan_sale_order_group_manager" model="res.groups">
-        <field name="name">Plan Sale Group Manager</field>
-        <field name="category_id" ref="module_plan_sale_order">
-        </field>
-        <field name="implied_ids" eval="[(4, ref('plan_sale_order_group_user'))]">
-        </field>
+        <field name="name">Plan Group Manager</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
-
-    <record id="plan_sale_order_group_user-rule" model="ir.rule">
-		<field name="model_id" ref="model_plan_sale_order">
-        </field>
-		<field name="groups" eval="[(4, ref('plan_sale_order_group_user'))]">
-        </field>
-	</record>
 
 </odoo>

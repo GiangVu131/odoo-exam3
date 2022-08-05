@@ -51,13 +51,13 @@ class PlanSaleOrder(models.Model):
                 raise models.ValidationError('No one approve')
             else:
                 rec.change_state('send')
-                rec.sudo().message_post(body=_(("<b> <h2> Send notification to approval person </h2> </b>")),
+                rec.sudo().message_post(body=_(("<b> <h2> New plan sale order avalible </h2> </b>")),
                                         partner_ids=rec.order_line.approval_person.ids,
                                         message_type='notification')
 
     def btn_confirm(self):
         if self.new_check == 'yes':
             self.state = 'approve'
-            self.sudo().message_post(body=_(("<b> <h2> Hallu </h2> </b>")),
-                                     partner_ids=self.create_uid.ids,
+            self.sudo().message_post(body=_(("<b> <h2> Your plan sale order is approved </h2> </b>")),
+                                     partner_ids=self.create_uid.partner_id.ids,
                                      message_type='notification')
